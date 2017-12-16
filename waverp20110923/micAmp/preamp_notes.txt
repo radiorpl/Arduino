@@ -1,0 +1,47 @@
+A microphone preamp is required to match the output of a typical Electret
+microphone to the Arduino's ADC.  A simple preamp is shown in preamp_circuit.png.
+This preamp is minimal and is not low noise.
+
+You should read http://www.hobby-hour.com/electronics/computer_microphone.php
+before wiring the jack for your microphone.  I have included a copy as 
+ComputerMicrophones.pdf.  I have ordered a Olympus ME-15 Microphone.  This
+microphone has a 3.5mm mono plug so both bias and signal are on the tip.
+Many recorder microphones have 2.5mm plugs.
+
+Also look at http://www.shure.com/ProAudio/Products/us_pro_ea_connectingmics
+before buying a professional microphone.
+
+The output from the preamp must be 0 - 5 volts with silence producing 2.5 volts. 
+
+I used half of a TLV2372IP since it is a rail-to-rail op amp that works with the
+Arduino's 5 volt supply.  I suspect there are better choices but I had this part.
+I requested samples of LMV722 op-amps but they are SOIC, not DIP.
+
+preamp_close.jpg and preamp_shield.jpg show a version of this circuit where
+R3 and R4 are 12k and the gain pot, R5, is replaced by a fixed 470k resistor.
+
+The photos are before I added C2 to reduce high frequency noise which also reduces
+high frequency response.  You may want to adjust the value of C2. See 
+preamp_response.png for the response curves with the preamp connected to the 
+Arduino's ADC.
+
+I used cheap 1% resistors from eBay's "Asia Engineer store".  The color codes 
+are not very clear in the photos.
+
+The circuit was built on a small prototype board from 
+http://www.wrighthobbies.net/.  I used 1/4 of a SEPB576 board.
+
+The board plugs into the Arduino analog and power headers.
+
+I use a Plantronics .Audio 355 headset with this preamp for debug.
+
+This data sheet has an example of a better preamp with speech bandpass filters.
+http://focus.ti.com/lit/ds/symlink/opa344.pdf
+
+See FIGURE 7 - Speech Bandpass Filtered Data Acquisition System.
+
+TI sent me five samples each of OPA2344PA and LMV722IDR at no charge. 
+Digikey sends them for TI.
+
+
+

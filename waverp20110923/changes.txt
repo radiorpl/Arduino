@@ -1,0 +1,11 @@
+23 Sep 2011
+
+Added PiSpeakRP example 
+
+Fixed volatile variables.
+
+21 Sep 2011
+
+Updates for Arduino 1.0
+
+You must use the latest version of SdFat
