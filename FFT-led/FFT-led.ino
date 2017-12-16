@@ -35,8 +35,8 @@ AudioConnection patchCord1(audioInput, 0, myFFT, 0);
 AudioControlSGTL5000 audioShield;
 
 //fft range arrays
-int lowBound [5] = {0, 3, 7, 36, 90};
-int highBound[5] = {2, 6, 25, 89, 200};
+int lowBound [6] = {0, 3, 6, 11, 21, 41};
+int highBound[6] = {2, 5, 10, 20, 40, 100};
 void setup() {
   // Audio connections require memory to work.  For more
   // detailed information, see the MemoryAndCpuUsage example
@@ -65,7 +65,7 @@ void loop() {
     // each time new FFT data is available
     // print it all to the Arduino Serial Monitor
     Serial.print("FFT: ");
-	for (i=0; i<5; i++) {
+	for (i=0; i<6; i++) {
 	      n = myFFT.read(lowBound[i], highBound[i]);
 	      if (n >= 0.01) {
 	        Serial.print(n);
