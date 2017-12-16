@@ -37,24 +37,30 @@ AudioControlSGTL5000 audioShield;
 //fft range arrays
 int lowBound [6] = {0, 5, 11, 21, 41, 71};
 int highBound[6] = {4, 10, 20, 40, 70, 110};
+int ledPin   [6] = {4, 5, 8, 16, 17, 20};
+int ledBright [6] = {15, 30, 60, 120, 240, 255};
+int l;
+
 void setup() {
-  // Audio connections require memory to work.  For more
-  // detailed information, see the MemoryAndCpuUsage example
-  AudioMemory(12);
+  	// Audio connections require memory to work.  For more
+  	// detailed information, see the MemoryAndCpuUsage example
+  	AudioMemory(12);
+  	for (l=0; l<5; l++) {
+  		pinMode(ledPin[l], OUTPUT);
+  	}
+  	// Enable the audio shield and set the output volume.
+  	audioShield.enable();
+  	audioShield.inputSelect(myInput);
+  	audioShield.volume(0.5);
 
-  // Enable the audio shield and set the output volume.
-  audioShield.enable();
-  audioShield.inputSelect(myInput);
-  audioShield.volume(0.5);
+  	// Configure the window algorithm to use
+  	myFFT.windowFunction(AudioWindowHanning1024);
+  	//myFFT.windowFunction(NULL);
 
-  // Configure the window algorithm to use
-  myFFT.windowFunction(AudioWindowHanning1024);
-  //myFFT.windowFunction(NULL);
-
-  // Create a synthetic sine wave, for testing
-  // To use this, edit the connections above
-  sinewave.amplitude(0.8);
-  sinewave.frequency(1000.007);
+  	// Create a synthetic sine wave, for testing
+  	// To use this, edit the connections above
+  	sinewave.amplitude(0.8);
+  	sinewave.frequency(1000.007);
 }
 
 void loop() {
@@ -68,11 +74,14 @@ void loop() {
 	for (i=0; i<6; i++) {
 	      n = myFFT.read(lowBound[i], highBound[i]);
 	      if (n >= 0.01) {
-			Serial.print(n);
-	        Serial.print(" ");
-	      } else {
-	        Serial.print("  -  "); // don't print "0.00"
-	      }
+			  	digitalWriteFast(ledPin[i], 255);
+				Serial.print(n);
+	        	Serial.print(" ");
+	      } 
+		  else {
+			  	digitalWriteFast(ledPin[i], 0);
+		    	Serial.print("  -  "); // don't print "0.00"
+		  }
 	 }
 	 Serial.println();
 	} 
