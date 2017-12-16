@@ -38,7 +38,7 @@ AudioControlSGTL5000 audioShield;
 int lowBound [6] = {0, 5, 11, 21, 41, 71};
 int highBound[6] = {4, 10, 20, 40, 70, 110};
 int ledPin   [6] = {4, 5, 8, 16, 17, 20};
-int ledBright [6] = {15, 30, 60, 120, 240, 255};
+int ledBright [10] = {15, 30, 60, 80, 110, 140, 170, 200, 225, 255};
 int l;
 
 void setup() {
@@ -66,6 +66,7 @@ void setup() {
 void loop() {
   float n;
   int i;
+  int b;
 
   if (myFFT.available()) {
     // each time new FFT data is available
@@ -74,7 +75,37 @@ void loop() {
 	for (i=0; i<6; i++) {
 	      n = myFFT.read(lowBound[i], highBound[i]);
 	      if (n >= 0.01) {
-			  	digitalWriteFast(ledPin[i], 255);
+			  if (n <= 0.02){
+				  b = 0;
+			  }
+			  else if (0.02 < n <= 0.03){
+				  b = 1;
+			  }
+			  else if (0.03 < n <= 0.05){
+				  b = 2;
+			  }
+			  else if (0.05 < n <= 0.07){
+				  b = 3;
+			  }
+			  else if (0.07 < n <= 0.1){
+				  b = 4;
+			  }
+			  else if (0.1 < n <= 0.13){
+				  b = 5;
+			  }
+			  else if (0.13 < n <= 0.17){
+				  b = 6;
+			  }
+			  else if (0.17 < n <= 0.2){
+				  b = 7;
+			  }
+			  else if (0.2 < n <= 0.25){
+				  b = 8;
+			  }
+			  else if (n > 0.25 ){
+				  b = 9;
+			  }
+			  	digitalWriteFast(ledPin[i], ledBright[b]);
 				Serial.print(n);
 	        	Serial.print(" ");
 	      } 
