@@ -35,17 +35,17 @@ AudioConnection patchCord1(audioInput, 0, myFFT, 0);
 AudioControlSGTL5000 audioShield;
 
 //fft range arrays
-int lowBound [6] = {0, 5, 11, 21, 41, 71};
-int highBound[6] = {4, 10, 20, 40, 70, 110};
-int ledPin   [6] = {4, 5, 8, 16, 17, 20};
-int ledBright [10] = {15, 30, 60, 80, 110, 140, 170, 200, 225, 255};
-int l;
+int lowBound [3] = {1, 7, 15};
+int highBound[3] = {6, 14, 110};
+int ledPin   [6] = {0, 1, 2, 3, 4, 5};
+int ledBright [5] = {0, 30, 100, 175, 255};
+int l; //number of leds for setup loop
 
 void setup() {
   	// Audio connections require memory to work.  For more
   	// detailed information, see the MemoryAndCpuUsage example
   	AudioMemory(12);
-  	for (l=0; l<5; l++) {
+  	for (l=0; l<6; l++) {
   		pinMode(ledPin[l], OUTPUT);
   	}
   	// Enable the audio shield and set the output volume.
@@ -65,52 +65,60 @@ void setup() {
 
 void loop() {
   float n;
-  int i;
-  int b;
+  int i;	//equalizer band
+  int j;	//second led for eq meter display
+  int b;	//brightness for led 1
+  int c;	//brightness of led 2
 
   if (myFFT.available()) {
     // each time new FFT data is available
     // print it all to the Arduino Serial Monitor
     Serial.print("FFT: ");
-	for (i=0; i<6; i++) {
+	for (i=0; i<3; i++) {
+		  j = i+3;
 	      n = myFFT.read(lowBound[i], highBound[i]);
 	      if (n >= 0.01) {
 			  if (n <= 0.02){
-				  b = 0;
+				  b = 1;
+				  c = 0;
 			  }
 			  else if (0.02 < n <= 0.03){
-				  b = 1;
+				  b = 2;
+				  c = 0;
 			  }
 			  else if (0.03 < n <= 0.05){
-				  b = 2;
+				  b = 3;
+				  c = 0;
 			  }
 			  else if (0.05 < n <= 0.07){
-				  b = 3;
+				  b = 4;
+				  c = 0;
 			  }
 			  else if (0.07 < n <= 0.1){
 				  b = 4;
+				  c = 1;
 			  }
-			  else if (0.1 < n <= 0.13){
-				  b = 5;
+			  else if (0.1 < n <= 0.14){
+				  b = 4;
+				  c = 2;
 			  }
-			  else if (0.13 < n <= 0.17){
-				  b = 6;
+			  else if (0.14 < n <= 0.2){
+				  b = 4;
+				  c = 3;
 			  }
-			  else if (0.17 < n <= 0.2){
-				  b = 7;
-			  }
-			  else if (0.2 < n <= 0.25){
-				  b = 8;
-			  }
-			  else if (n > 0.25 ){
-				  b = 9;
+			  else if (n > 0.20){
+				  b = 4;
+				  c = 4;
 			  }
 			  	digitalWriteFast(ledPin[i], ledBright[b]);
+				//digitalWriteFast(ledPin[j], 0);
+				digitalWriteFast(ledPin[j], ledBright[c]);
 				Serial.print(n);
 	        	Serial.print(" ");
 	      } 
 		  else {
 			  	digitalWriteFast(ledPin[i], 0);
+				digitalWriteFast(ledPin[j], 0);
 		    	Serial.print("  -  "); // don't print "0.00"
 		  }
 	 }
