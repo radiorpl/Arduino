@@ -89,10 +89,11 @@ void loop() {
 			  k = j+3;
 		      n = fft1024_1.read(lowBound[i], highBound[i]);
 		  	//int m = n * 100;
-		  	int m = map(n, 0.0, 0.7, 0, 10);
-			int pwm = map(m, 1, 10, 0, 255);
-		      if (n >= 0.02) {
-				 if (0.02 < n <= 0.15){
+		  	int m = map(n, 0.0, 0.6, 0, 10);  //map levels to 10 steps
+			constrain(m, 0, 10);	
+			int pwm = map(m, 0, 10, 0, 255);  //map steps
+		      if (n >= 0.03) {
+				 if (0.03 < n <= 0.15){
 					  b = pwm;
 					  c = 0;
 					  d = 0;
@@ -106,18 +107,19 @@ void loop() {
 					  b = 255;
 					  c = 255;
 					  d = pwm;
+					  //delay(10);
 				  }
-				  	digitalWriteFast(ledPin[i], b);
-					digitalWriteFast(ledPin[j], c);
-					digitalWriteFast(ledPin[k], d);
-					Serial.print(pwm);
+				  	analogWrite(ledPin[i], b);
+					analogWrite(ledPin[j], c);
+					analogWrite(ledPin[k], d);
+					Serial.print(m);
 		        	Serial.print(" ");
 					delay(20);
 		      } 
 			  else {
-				  	digitalWriteFast(ledPin[i], ledBright[0]);
-					digitalWriteFast(ledPin[j], ledBright[0]);
-					digitalWriteFast(ledPin[k], ledBright[0]);
+				  	analogWrite(ledPin[i], ledBright[0]);
+					analogWrite(ledPin[j], ledBright[0]);
+					analogWrite(ledPin[k], ledBright[0]);
 			    	Serial.print("  -  "); // don't print "0.00"
 			  }
 		 }
