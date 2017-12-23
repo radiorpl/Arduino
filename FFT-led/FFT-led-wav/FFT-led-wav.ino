@@ -63,6 +63,7 @@ void setup() {
 }
 
 void loop() {
+	//int pwm = map(n, 0.0, 1.0, 0, 255);
 	
 	if (playSdWav1.isPlaying() == false){
 		playSdWav1.play("1.WAV"); //play wav file
@@ -76,6 +77,8 @@ void loop() {
   	int b;	//brightness for led 1
   	int c;	//brightness of led 2
   	int d;	//brightness of led 3
+	//int m = n * 100;
+	//int pwm = map(m, 0, 100, 0, 255);
 
  	if (fft1024_1.available()) {
 	    // each time new FFT data is available
@@ -85,84 +88,31 @@ void loop() {
 			  j = i+3;		//skip to correct led in array
 			  k = j+3;
 		      n = fft1024_1.read(lowBound[i], highBound[i]);
+		  	//int m = n * 100;
+		  	int m = map(n, 0.0, 0.7, 0, 10);
+			int pwm = map(m, 1, 10, 0, 255);
 		      if (n >= 0.02) {
-				 if (0.02 < n <= 0.05){
-					  b = 1;
+				 if (0.02 < n <= 0.15){
+					  b = pwm;
 					  c = 0;
 					  d = 0;
 				  }
-				  else if (0.05 < n <= 0.08){
-					  b = 3;
-					  c = 0;
+				  else if (0.15 < n <= 0.4){
+					  b = 255;
+					  c = pwm;
 					  d = 0;
 				  }
-				  else if (0.08 < n <= 0.11){
-					  b = 4;
-					  c = 0;
-					  d = 0;
+				  else if (n > 0.4){
+					  b = 255;
+					  c = 255;
+					  d = pwm;
 				  }
-				  else if (0.11 < n <= 0.15){
-					  b = 5;
-					  c = 0;
-					  d = 0;
-				  }
-				  else if (0.15 < n <= 0.19){
-					  b = 5;
-					  c = 1;
-					  d = 0;
-				  }
-				  else if (0.19 < n <= 0.23){
-					  b = 5;
-					  c = 2;
-					  d = 0;
-				  }
-				  else if (0.23 < n <= 0.28){
-					  b = 5;
-					  c = 3;
-					  d = 0;
-				  }
-				  else if (0.28 < n <= 0.33){
-					  b = 5;
-					  c = 4;
-					  d = 0;
-				  }
-				  else if (0.33 < n <= 0.39){
-					  b = 5;
-					  c = 5;
-					  d = 0;
-				  }
-				  else if (0.39 < n <= 0.45){
-					  b = 5;
-					  c = 5;
-					  d = 1;
-				  }
-				  else if (0.45 < n <= 0.52){
-					  b = 5;
-					  c = 5;
-					  d = 2;
-				  }
-				  else if (0.52 < n <= 0.59){
-					  b = 5;
-					  c = 5;
-					  d = 3;
-				  }
-				  else if (0.59 < n <= 0.67){
-					  b = 5;
-					  c = 5;
-					  d = 4;
-				  }
-
-				  else if (n > 0.67){
-					  b = 5;
-					  c = 5;
-					  d = 5;
-				  }
-				  	digitalWriteFast(ledPin[i], ledBright[b]);
-					digitalWriteFast(ledPin[j], ledBright[c]);
-					digitalWriteFast(ledPin[k], ledBright[d]);
-					Serial.print(n);
+				  	digitalWriteFast(ledPin[i], b);
+					digitalWriteFast(ledPin[j], c);
+					digitalWriteFast(ledPin[k], d);
+					Serial.print(pwm);
 		        	Serial.print(" ");
-					delay(50);
+					delay(20);
 		      } 
 			  else {
 				  	digitalWriteFast(ledPin[i], ledBright[0]);
