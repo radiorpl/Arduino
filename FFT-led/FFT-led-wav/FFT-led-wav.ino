@@ -65,9 +65,6 @@ void setup() {
         Serial.println("Unable to access the SD card");   
       }   
     }
-  	for (l=0; l<9; l++) {		//initialize led pins
-  		pinMode(ledPin[l], OUTPUT);
-  	}
   	// Enable the audio shield and set the output volume.
   	sgtl5000_1.enable();
 	//for line in uncomment below
@@ -75,13 +72,8 @@ void setup() {
   	sgtl5000_1.volume(0.5);
   	// Configure the window algorithm to use
   	fft1024_1.windowFunction(AudioWindowHanning1024);
-  	//fft1024_1.windowFunction(NULL);
 	mixer1.gain(0, 2.0);
 	mixer1.gain(1, 2.0);
-  // initialize all the readings to 0:
-   // for (int thisReading = 0; thisReading < numReadings; thisReading++) {
-     // readings[thisReading] = 0;
-   // }
 }
 
 void loop() {
@@ -114,7 +106,7 @@ void loop() {
 			//constrain(m, 0, 10);	
 			int pwm = map(n, 0.0, 0.85, 0, 255);  //map steps
 			constrain(pwm, 0, 255);		//constrain to pwm range
-			int pwm_follower = pwm - 100;  		//follower pwm for next strip
+			int pwm_follower = pwm - 150;  		//follower pwm for next strip
 			if (pwm_follower < 0){
 				pwm_follower = 0;
 			}
@@ -140,19 +132,19 @@ void loop() {
 			//int last_pwm;
 		      	if (average[i] >= 1){
 				  	if (average[i] <= 50){
-				 		b = pwm;
+				 		b = average[i];
 				  		c = pwm_follower;
 				  		d = 0;
 					}
 				  else if (average[i] > 50 && average[i] <= 150){
 					  b = 255;
-					  c = pwm;
+					  c = average[i];
 					  d = pwm_follower;
 				  }
 				  else if (average[i] > 150){
 					  b = 255;
 					  c = 255;
-					  d = pwm;
+					  d = average[i];
 				  }
 				  	analogWrite(ledPin[i], b);
 					analogWrite(ledPin[j], c);
