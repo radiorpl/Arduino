@@ -4,6 +4,7 @@
 #include <SD.h>
 #include <SerialFlash.h>
 
+
 // GUItool: begin automatically generated code
 AudioPlaySdWav           playSdWav1;     //xy=225,244
 AudioMixer4              mixer1;         //xy=400,103
@@ -89,32 +90,43 @@ void loop() {
 			  k = j+3;
 		      n = fft1024_1.read(lowBound[i], highBound[i]);
 		  	//int m = n * 100;
-		  	int m = map(n, 0.0, 0.6, 0, 10);  //map levels to 10 steps
-			constrain(m, 0, 10);	
-			int pwm = map(m, 0, 10, 0, 255);  //map steps
-		      if (n >= 0.03) {
-				 if (0.03 < n <= 0.15){
-					  b = pwm;
-					  c = 0;
-					  d = 0;
+		  	//int m = map(n, 0.0, 0.6, 0, 10);  //map levels to 10 steps
+			//constrain(m, 0, 10);	
+			int pwm = map(n, 0.0, 0.85, 0, 255);  //map steps
+			constrain(pwm, 0, 255);		//constrain to pwm range
+			int pwm_follower = pwm - 100;  		//follower pwm for next strip
+			if (pwm_follower < 0){
+				pwm_follower = 0;
+			}
+			int last_pwm; 
+		      	if (n >= 0.03){
+				  	if (n <= 0.2){
+					 	if (abs(last_pwm - pwm) < 10){
+   					 		b = pwm;
+   					  		c = pwm_follower;
+   					  		d = 0;
+						}
+						else {
+						
+					}
 				  }
-				  else if (0.15 < n <= 0.4){
+				  else if (0.2 < n && n <= 0.5){
 					  b = 255;
 					  c = pwm;
-					  d = 0;
+					  d = pwm_follower;
 				  }
-				  else if (n > 0.4){
+				  else if (n > 0.5){
 					  b = 255;
 					  c = 255;
 					  d = pwm;
-					  //delay(10);
 				  }
 				  	analogWrite(ledPin[i], b);
 					analogWrite(ledPin[j], c);
 					analogWrite(ledPin[k], d);
-					Serial.print(m);
+					Serial.print(pwm);
 		        	Serial.print(" ");
-					delay(20);
+					last_pwm = pwm;
+					//delay(10);
 		      } 
 			  else {
 				  	analogWrite(ledPin[i], ledBright[0]);
