@@ -29,6 +29,22 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=670,337
 #define SDCARD_MOSI_PIN  7
 #define SDCARD_SCK_PIN   14
 
+char track[7][7]{
+	{"1.WAV"},
+	{"2.WAV"},
+	{"3.WAV"},
+	{"4.WAV"},
+	{"5.WAV"},
+	{"6.WAV"},
+	{"7.WAV"}
+};
+//int trackNumber = 0;
+const int buttonPin = 8;
+int buttonPushCounter = 0;   // counter for the number of button presses
+int lastButton = 0;
+int buttonState = 0;         // current state of the button
+int lastButtonState = 0;     // previous state of the button
+
 // Define the number of samples to keep track of. The higher the number, the
 // more the readings will be smoothed, but the slower the output will respond to
 // the input. Using a constant rather than a normal variable lets us use this
@@ -74,16 +90,36 @@ void setup() {
   	fft1024_1.windowFunction(AudioWindowHanning1024);
 	mixer1.gain(0, 2.0);
 	mixer1.gain(1, 2.0);
+	pinMode(buttonPin, INPUT);
 }
 
 void loop() {
+  // read the pushbutton input pin:
+    buttonState = digitalRead(buttonPin);
+
+    // compare the buttonState to its previous state
+    if (buttonState != lastButtonState) {
+      // if the state has changed, increment the counter
+      if (buttonState == HIGH) {
+        // if the current state is HIGH then the button went from off to on:
+        buttonPushCounter++;
+		Serial.println("button");
+		if (buttonPushCounter > 6){
+			buttonPushCounter = 0;
+		}
+      } 
+      // Delay a little bit to avoid bouncing
+      //delay(50);3
+    }
+    // save the current state as the last state, for next time through the loop
+    lastButtonState = buttonState;
 	//int pwm = map(n, 0.0, 1.0, 0, 255);
 	
-	if (playSdWav1.isPlaying() == false){
-		playSdWav1.play("1.WAV"); //play wav file
+	if (playSdWav1.isPlaying() == false || buttonPushCounter != lastButton){
+		playSdWav1.play(track[buttonPushCounter]); //play wav file
       	delay(10); // wait for library to parse WAV info
 	}
-	
+	lastButton = buttonPushCounter;
 	float n;	//level from fft
   	int i;	//equalizer band
   	int j;	//second led for eq meter display
@@ -163,4 +199,4 @@ void loop() {
 		 }
 		 Serial.println();
 		} 
- }
+}
