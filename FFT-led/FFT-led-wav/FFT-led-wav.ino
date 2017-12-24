@@ -29,6 +29,23 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=670,337
 #define SDCARD_MOSI_PIN  7
 #define SDCARD_SCK_PIN   14
 
+// Define the number of samples to keep track of. The higher the number, the
+// more the readings will be smoothed, but the slower the output will respond to
+// the input. Using a constant rather than a normal variable lets us use this
+// value to determine the size of the readings array.
+const int numReadings = 20;
+int band[3][numReadings] = {
+	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}	
+};      // the readings from the three frequency bins
+	
+//int band1[numReadings];
+//int band2[numReadings];
+int readIndex[3] = {0, 0, 0};     // the index of the current reading
+int total [3] = {0, 0, 0};                  // the running total
+int average[3] = {0, 0, 0};                // the average
+
 //fft range arrays
 //set for 87 wide
 int lowBound [3] = {2, 6, 13};					//lower frequency bounds for eq channels
@@ -61,6 +78,10 @@ void setup() {
   	//fft1024_1.windowFunction(NULL);
 	mixer1.gain(0, 2.0);
 	mixer1.gain(1, 2.0);
+  // initialize all the readings to 0:
+   // for (int thisReading = 0; thisReading < numReadings; thisReading++) {
+     // readings[thisReading] = 0;
+   // }
 }
 
 void loop() {
@@ -86,10 +107,9 @@ void loop() {
 	    // print it all to the Arduino Serial Monitor
 	    Serial.print("FFT: ");
 		for (i=0; i<3; i++) {
-			  j = i+3;		//skip to correct led in array
-			  k = j+3;
-		      n = fft1024_1.read(lowBound[i], highBound[i]);
-		  	//int m = n * 100;
+			j = i+3;		//skip to correct led in array
+			k = j+3;
+		    n = fft1024_1.read(lowBound[i], highBound[i]);
 		  	//int m = map(n, 0.0, 0.6, 0, 10);  //map levels to 10 steps
 			//constrain(m, 0, 10);	
 			int pwm = map(n, 0.0, 0.85, 0, 255);  //map steps
@@ -98,24 +118,38 @@ void loop() {
 			if (pwm_follower < 0){
 				pwm_follower = 0;
 			}
-			int last_pwm; 
-		      	if (n >= 0.03){
-				  	if (n <= 0.2){
-					 	if (abs(last_pwm - pwm) < 10){
-   					 		b = pwm;
-   					  		c = pwm_follower;
-   					  		d = 0;
-						}
-						else {
-						
+			
+		  	// subtract the last reading:
+		    total[i] = total[i] - band[i][readIndex[i]];
+		    // read from the sensor:
+		    band[i][readIndex[i]] = pwm;
+		    // add the reading to the total:
+		    total[i] = total[i] + band[i][readIndex[i]];
+		    // advance to the next position in the array:
+		    readIndex[i] = readIndex[i] + 1;
+
+		    // if we're at the end of the array...
+		    if (readIndex[i] >= numReadings) {
+		      // ...wrap around to the beginning:
+		      readIndex[i] = 0;
+		    }
+		    // calculate the average:
+		    average[i] = total[i] / numReadings;
+		    // send it to the computer as ASCII digits
+		    //Serial.println(average);
+			//int last_pwm;
+		      	if (average[i] >= 1){
+				  	if (average[i] <= 50){
+				 		b = pwm;
+				  		c = pwm_follower;
+				  		d = 0;
 					}
-				  }
-				  else if (0.2 < n && n <= 0.5){
+				  else if (average[i] > 50 && average[i] <= 150){
 					  b = 255;
 					  c = pwm;
 					  d = pwm_follower;
 				  }
-				  else if (n > 0.5){
+				  else if (average[i] > 150){
 					  b = 255;
 					  c = 255;
 					  d = pwm;
@@ -123,9 +157,9 @@ void loop() {
 				  	analogWrite(ledPin[i], b);
 					analogWrite(ledPin[j], c);
 					analogWrite(ledPin[k], d);
-					Serial.print(pwm);
+					Serial.print(average[i]);
 		        	Serial.print(" ");
-					last_pwm = pwm;
+					//last_pwm = pwm;
 					//delay(10);
 		      } 
 			  else {
